@@ -1,10 +1,8 @@
-use std::str::Lines;
-
 pub fn day01(input_lines: &str) -> (String, String) {
     let mut mult_res: i32 = 0;
 
     let lines: Vec<&str> = input_lines.lines().collect();
-    let lines_1 = lines.clone();
+    let lines_1: Vec<&str> = lines.clone();
 
     // labelled outter loop to go through inputs
     'outer_loop: for (i, line) in lines_1.iter().enumerate() {
