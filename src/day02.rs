@@ -25,7 +25,7 @@ impl PasswdPolicy {
         let no_ocurrences: usize = self.pwd.matches(self.needed_char).count();
 
         // Task 1 interprets two indices as bounds for num times needed char needs to be found
-        self.first_ind <= no_ocurrences && no_ocurrences <= self.sec_ind
+        (self.first_ind..=self.sec_ind).contains(&no_ocurrences)
     }
 
     fn is_pwd_valid_task2(&self) -> bool {
