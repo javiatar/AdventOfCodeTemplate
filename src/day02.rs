@@ -11,7 +11,13 @@ struct PasswdPolicy {
 }
 
 impl PasswdPolicy {
-    fn new(caps: Captures) -> Self {
+    fn new(pwd: &str) -> Self {
+        lazy_static! {
+            static ref RE: Regex = Regex::new(r"(\d+)-(\d+) ([a-z]): (\w+)").unwrap();
+        }
+
+        let caps = RE.captures(pwd).unwrap();
+
         Self {
             first_ind: caps[1].parse().expect("Couldn't parse start_pos to int"),
             sec_ind: caps[2].parse().expect("Couldn't parse end_pos to int"),
@@ -38,17 +44,11 @@ impl PasswdPolicy {
 pub fn day02(input_lines: &str) -> (String, String) {
     let lines_iterator: Lines = input_lines.lines();
 
-    lazy_static! {
-        static ref RE: Regex = Regex::new(r"(\d+)-(\d+) ([a-z]): (\w+)").unwrap();
-    }
-
     let mut count_valid_passwd_task1: u32 = 0;
     let mut count_valid_passwd_task2: u32 = 0;
 
     for pwd in lines_iterator {
-        let caps = RE.captures(pwd).unwrap();
-
-        let pwd_pol = PasswdPolicy::new(caps);
+        let pwd_pol = PasswdPolicy::new(pwd);
 
         if pwd_pol.is_pwd_valid_task1() {
             count_valid_passwd_task1 += 1;
