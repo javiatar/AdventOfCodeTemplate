@@ -1,6 +1,5 @@
-use lazy_static::lazy_static;
+use once_cell::sync::OnceCell;
 use regex::Regex;
-
 use std::str::Lines;
 
 struct PasswdPolicy {
@@ -12,11 +11,12 @@ struct PasswdPolicy {
 
 impl PasswdPolicy {
     fn new(pwd: &str) -> Self {
-        lazy_static! {
-            static ref RE: Regex = Regex::new(r"(\d+)-(\d+) ([a-z]): (\w+)").unwrap();
-        }
+        static RE: OnceCell<Regex> = OnceCell::new();
 
-        let caps = RE.captures(pwd).unwrap();
+        let caps = RE
+            .get_or_init(|| Regex::new(r"(\d+)-(\d+) ([a-z]): (\w+)").unwrap())
+            .captures(pwd)
+            .unwrap();
 
         Self {
             first_ind: caps[1].parse().expect("Couldn't parse start_pos to int"),
