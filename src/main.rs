@@ -63,7 +63,7 @@ fn main() {
     let max_day: usize;
     if args.len() < 2 {
         min_day = 1;
-        max_day = DAY_FUNCTIONS.len();
+        max_day = DAY_FUNCTIONS.len() - 1;
     } else {
         min_day = args[1]
             .parse::<usize>()

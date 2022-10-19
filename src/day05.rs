@@ -64,11 +64,11 @@ pub fn day05(input_lines: &str) -> (String, String) {
     let mut answer2 = 0;
 
     // For part 2 need to collect all ids, sort them, and find the gap in the middle
-
     all_found_seat_ids.sort();
 
     for candidate_seat in all_found_seat_ids[0]..=all_found_seat_ids[all_found_seat_ids.len() - 1] {
-        if all_found_seat_ids.contains(&candidate_seat) == false {
+        // Whichever seat is missing within range of seen seat ids is our seat
+        if !all_found_seat_ids.contains(&candidate_seat) {
             answer2 = candidate_seat;
             break;
         }
