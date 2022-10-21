@@ -94,14 +94,4 @@ BBFFBBFRLL"
             "820".to_string()
         )
     }
-
-    #[test]
-    fn check_day05_part2_case1() {
-        assert_eq!(day05("").1, "0".to_string())
-    }
-
-    #[test]
-    fn check_day05_both_case1() {
-        assert_eq!(day05(""), ("0".to_string(), "0".to_string()))
-    }
 }
