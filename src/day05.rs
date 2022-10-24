@@ -1,8 +1,8 @@
-use std::str::Lines;
+use std::{collections::HashSet, str::Lines};
 
 fn get_seat_id(row_partition: &str, col_partition: &str) -> usize {
-    let row = get_ind_from_bin_part(0, 127, convert_partition_into_instructions(row_partition));
-    let col = get_ind_from_bin_part(0, 7, convert_partition_into_instructions(col_partition));
+    let row = get_ind_from_bin_part(0, 127, &convert_partition_into_instructions(row_partition));
+    let col = get_ind_from_bin_part(0, 7, &convert_partition_into_instructions(col_partition));
 
     row * 8 + col
 }
@@ -10,14 +10,14 @@ fn get_seat_id(row_partition: &str, col_partition: &str) -> usize {
 fn get_ind_from_bin_part(
     mut lower_bound: usize,
     mut upper_bound: usize,
-    part_instructions: Vec<bool>,
+    part_instructions: &Vec<bool>,
 ) -> usize {
     // mutable bounds are copied (as have copy trait) and can be changed here
-    for get_upper_part in &part_instructions {
+    for &get_upper_part in part_instructions {
         let midpoint = ((upper_bound - lower_bound) + 1) / 2;
 
         // boolean instructions deciding whether to look at top (true) or bottom (false) half of range
-        if *get_upper_part {
+        if get_upper_part {
             lower_bound += midpoint;
         } else {
             upper_bound -= midpoint;
@@ -34,7 +34,7 @@ fn get_ind_from_bin_part(
 }
 
 fn convert_partition_into_instructions(partition: &str) -> Vec<bool> {
-    // Convert from arbitrary char partition into binary instructins
+    // Convert from arbitrary char partition into binary instructions
     // True for top half and false for bottom half recursively
     let mut instructions: Vec<bool> = Vec::new();
 
@@ -50,30 +50,24 @@ fn convert_partition_into_instructions(partition: &str) -> Vec<bool> {
 
 pub fn day05(input_lines: &str) -> (String, String) {
     let lines_iterator: Lines = input_lines.lines();
-    let mut highest_seat_id = 0;
-    let mut all_found_seat_ids: Vec<usize> = Vec::new();
 
-    for boarding_pass in lines_iterator {
-        let highest_id_candidate = get_seat_id(&boarding_pass[..7], &boarding_pass[7..]);
-        if highest_id_candidate > highest_seat_id {
-            highest_seat_id = highest_id_candidate;
-        }
-        all_found_seat_ids.push(highest_id_candidate)
-    }
-    let answer1 = highest_seat_id;
-    let mut answer2 = 0;
+    let all_found_seat_ids: Vec<usize> = lines_iterator
+        .map(|boarding_pass| get_seat_id(&boarding_pass[..7], &boarding_pass[7..]))
+        .collect();
 
-    // For part 2 need to collect all ids, sort them, and find the gap in the middle
-    all_found_seat_ids.sort();
+    let &largest_seen_seat_id = all_found_seat_ids.iter().max().unwrap();
+    let &smallest_seen_seat_id = all_found_seat_ids.iter().min().unwrap();
 
-    for candidate_seat in all_found_seat_ids[0]..=all_found_seat_ids[all_found_seat_ids.len() - 1] {
-        // Whichever seat is missing within range of seen seat ids is our seat
-        if !all_found_seat_ids.contains(&candidate_seat) {
-            answer2 = candidate_seat;
-            break;
-        }
-    }
+    // For part 2 get gap between possible seats set and actually seen id set
+    let all_found_seat_ids: HashSet<usize> = HashSet::from_iter(all_found_seat_ids);
+    let all_possible_seat_ids: HashSet<usize> =
+        HashSet::from_iter(smallest_seen_seat_id..=largest_seen_seat_id);
 
+    let answer1 = largest_seen_seat_id;
+    let answer2 = all_possible_seat_ids
+        .difference(&all_found_seat_ids)
+        .next()
+        .unwrap();
     (format!("{}", answer1), format!("{}", answer2))
 }
 
