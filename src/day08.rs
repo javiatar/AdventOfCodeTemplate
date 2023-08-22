@@ -1,6 +1,58 @@
+fn parse_instruction(instruction: &str) {}
+
+fn add(u: usize, i: i32) -> usize {
+    if i.is_negative() {
+        u - i.wrapping_abs() as u32 as usize
+    } else {
+        u + i as usize
+    }
+}
+
 pub fn day08(input_lines: &str) -> (String, String) {
-    let _ = input_lines;
-    let answer1 = 0;
+    let mut instruction_index: usize = 0;
+    let mut global_acc: usize = 0;
+    let instruction_vec: Vec<&str> = input_lines.lines().collect();
+
+    // modify instructions to include a unique id for each instruction
+    let mut modified_instructions = Vec::new();
+    for (index, instruction) in instruction_vec.iter().enumerate() {
+        let modified_instruction = format!("{} {}", index, instruction);
+        modified_instructions.push(modified_instruction);
+    }
+    let mut seen_instructions: Vec<usize> = Vec::new();
+
+    loop {
+        match &modified_instructions[instruction_index]
+            .split(' ')
+            .collect::<Vec<_>>()[..]
+        {
+            &[index, operation, argument] => {
+                let index = index.parse::<usize>().unwrap();
+                let argument = argument.parse::<i32>().unwrap();
+
+                if seen_instructions.contains(&index) {
+                    break;
+                } else {
+                    seen_instructions.push(index);
+                }
+
+                if operation == "acc" {
+                    global_acc = add(global_acc, argument);
+                    instruction_index += 1;
+                } else if operation == "jmp" {
+                    instruction_index = add(instruction_index, argument);
+                } else if operation == "nop" {
+                    instruction_index += 1;
+                } else {
+                    panic!()
+                }
+            }
+            _ => {
+                panic!()
+            }
+        }
+    }
+    let answer1 = global_acc;
     let answer2 = 0;
     (format!("{}", answer1), format!("{}", answer2))
 }
@@ -11,7 +63,21 @@ mod tests {
 
     #[test]
     fn check_day08_part1_case1() {
-        assert_eq!(day08("").0, "0".to_string())
+        assert_eq!(
+            day08(
+                "nop +0
+acc +1
+jmp +4
+acc +3
+jmp -3
+acc -99
+acc +1
+jmp -4
+acc +6"
+            )
+            .0,
+            "5".to_string()
+        )
     }
 
     #[test]
