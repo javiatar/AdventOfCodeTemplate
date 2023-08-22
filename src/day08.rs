@@ -1,7 +1,9 @@
-fn parse_instruction(instruction: &str) {}
+// fn parse_instruction(instruction: &str) -> (usize, usize) {}
 
 fn add(u: usize, i: i32) -> usize {
     if i.is_negative() {
+        // GitHub Copilot: The reason why `u - i.wrapping_abs() as u32 as usize` requires two `as` statements is because the `wrapping_abs()` method
+        // returns an `i32` value, but we need to convert it to a `u32` value before we can convert it to a `usize` value. usize = u32 only on 32-bit platforms.
         u - i.wrapping_abs() as u32 as usize
     } else {
         u + i as usize
@@ -12,28 +14,20 @@ pub fn day08(input_lines: &str) -> (String, String) {
     let mut instruction_index: usize = 0;
     let mut global_acc: usize = 0;
     let instruction_vec: Vec<&str> = input_lines.lines().collect();
-
-    // modify instructions to include a unique id for each instruction
-    let mut modified_instructions = Vec::new();
-    for (index, instruction) in instruction_vec.iter().enumerate() {
-        let modified_instruction = format!("{} {}", index, instruction);
-        modified_instructions.push(modified_instruction);
-    }
     let mut seen_instructions: Vec<usize> = Vec::new();
 
     loop {
-        match &modified_instructions[instruction_index]
+        match &instruction_vec[instruction_index]
             .split(' ')
             .collect::<Vec<_>>()[..]
         {
-            &[index, operation, argument] => {
-                let index = index.parse::<usize>().unwrap();
+            &[operation, argument] => {
                 let argument = argument.parse::<i32>().unwrap();
 
-                if seen_instructions.contains(&index) {
+                if seen_instructions.contains(&instruction_index) {
                     break;
                 } else {
-                    seen_instructions.push(index);
+                    seen_instructions.push(instruction_index);
                 }
 
                 if operation == "acc" {
